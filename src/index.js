@@ -1,5 +1,4 @@
-import miniChart from './minichart'
+import miniChart  from './minichart.js'
 
-var myChart = document.getElementById('mychart')
 
-console.log(myChart);
+const myChart = document.getElementById('mychart')

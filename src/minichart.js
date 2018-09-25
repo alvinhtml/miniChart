@@ -1,6 +1,16 @@
-import chart from './chart/chart'
+import {Chart} from './chart/chart'
 
-export class miniChart {
+//引入事件对象
+import {addEvent} from './chart/event'
+
+//引入常量名
+import {
+	EVENT_MOUSE_DOWN
+} from './constants'
+
+
+
+export default class miniChart {
 
     constructor () {
         //版本
@@ -17,6 +27,7 @@ export class miniChart {
      * @return {[type]}         [description]
      */
     init (element) {
+        console.log(f, Chart)
         return new chart(element);
     }
 }

@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 2:
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14,8 +14,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var myChart = document.getElementById('mychart');
 
-console.log(myChart);
-
 /***/ })
 
-},[2]);
+},[4]);
