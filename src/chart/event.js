@@ -12,6 +12,6 @@ class event2D {
 }
 
 //添加事件
-export function addEvent (event, callback) {
+export function Event (event, callback) {
     return new event2D(event, callback)
 }
