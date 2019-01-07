@@ -1,4 +1,6 @@
-import {Chart} from './chart/chart'
+import Stage from './chart/stage'
+
+import {ChartPie, Chart} from './chart/chart'
 
 
 
@@ -8,14 +10,24 @@ export default class miniChart {
         //版本
         this.version = '1.0'
 
+        this.container = container
 
-        this.chart = new Chart(container)
     }
 
 
 
-    setOption () {
-        
+    setOption (option) {
+
+        let stage2d = new Stage(this.container)
+
+        //创建一个饼状图图表，传入配置信息
+        let chartPie2d = new ChartPie(option)
+
+
+        stage2d.addChart(chartPie2d)
+
+        stage2d.startPaint()
+
     }
 
     /*!

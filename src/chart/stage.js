@@ -1,25 +1,46 @@
-//引入
+//引入渲染优化方法
 import Render from './render'
 
+//引入场景对象
 import Scene from './scene'
 
+//引入图表对象
+import Chart from './chart'
+
+//引入事件对象
+import {Event} from './event'
+
+//引入常量名
+import {
+	EVENT_MOUSE_DOWN
+} from '../constants'
+
+let lastIDOMHighResTimeStamp = 0;
+
+//引入工具函数
 import {offsetTop, offsetLeft} from '../tools/tool.js'
+
+//last iDOMHighResTimeStamp
+let lastTimestamp = 0;
 
 //舞台
 export default class Stage {
 
     constructor (container) {
 
-        //容器
+        //容器, canvas 元素的 parent
         this.container = container
 
-        //场景
-        this.sceneList = []
+        this.container.style.position = 'relative'
 
-        //舞台上的影片剪辑
-        this.movieclipList = []
+        //前景容器
+        //this.foregroundList = []
 
+        //背景容器
+        //this.backdropList = []
 
+        //图表容器
+        this.chartList = []
 
         //舞台的宽和高，既是容器的宽和高，实际也是canvas的宽和高
 		this.width = container.clientWidth
@@ -42,33 +63,75 @@ export default class Stage {
 		this.translateX = 0
 		this.translateY = 0
 
-        //创建并添加一个场景到当前舞台
-        this.addScene(this.createScene())
+        this.pixelRatio = pixelRatio
 
+        console.log("windowRatio", this.ratio)
+
+        //鼠标X
+    	this.mouseX = 0
+
+    	//鼠标Y
+    	this.mouseY = 0
+
+        //鼠标X
+    	this.mouseClickX = 0
+
+    	//鼠标Y
+    	this.mouseClickY = 0
+
+    	//鼠标相对于页面X
+    	this.pageX = 0
+
+    	//鼠标相对于页面Y
+    	this.pageY = 0
+
+        //当前帧距离上一帧的时间间隔
+        this.interval = 0
+
+        //等待播放动画元素的个数
+        this.animaterNumber = 0
+
+        //添加事件监听
+		document.addEventListener("mouseup", function(e) {
+			//coreStage2d.stageMouseUp(e)
+		}, false)
+
+		container.addEventListener("mousedown", function(e) {
+			//coreStage2d.stageMouseDown(e)
+		}, false)
+
+		container.addEventListener("mousemove", (e) => {
+        	this.pageX = e.pageX
+        	this.pageY = e.pageY
+            this.mouseX = (e.pageX - this.offset.left) * this.pixelRatio
+            this.mouseY = (e.pageY - this.offset.top) * this.pixelRatio
+		}, false)
 
         //缩放事件
         container.addEventListener("DOMMouseScroll", (e) => {
-            this.stageScroll(e)
+            //缩放，暂时禁用
+            //this.stageScroll(e)
 		}, false)
         //兼容FF
 		container.onmousewheel = (e) => {
-            this.stageScroll(e)
+            //缩放，暂时禁用
+            //this.stageScroll(e)
 		}
 
-        console.log("this.sceneList", this.sceneList);
-
-        //渲染绘制图表
-        Render(() => {
-            this.paintScene()
-        })
     }
 
-    createScene () {
-        return Scene.init(this.container, this.width, this.height)
+    //创建一个场景
+    createScene (type) {
+        //初始化一个场景，并绑定当前舞台
+        let scener = Scene.init(this)
+
+        return scener
     }
 
-    addScene (scene) {
-        this.sceneList.push(scene)
+    //添加一个图表
+    addChart (chart) {
+        chart.init(this)
+        this.chartList.push(chart)
     }
 
     stageScroll (e) {
@@ -104,44 +167,49 @@ export default class Stage {
 	}
 
 
+    //背景绘制
+    backdropPaint () {
+        this.chartList.forEach((scener) => {
 
-    paintScene () {
-
-        for (let i = 0, len = this.sceneList.length; i < len; i++) {
-            // console.log("this.sceneList[" + i + "]", this.sceneList[i])
-            this.paint(this.sceneList[i].context)
-        }
-
-        Render(() => {
-            this.paintScene()
         })
     }
 
 
-    //重绘核心
-    paint(context) {
-
-        //清理画面
-		context.clearRect(0, 0, this.width, this.height)
-
-		//重置画布的透明度
-		context.globalAlpha = 1
-
-		context.save()
-
-        //重新设定画布偏移和缩放
-		context.translate(this.translateX, this.translateY)
-
-        // console.log("this.scale", this.scale);
-		context.scale(this.scale, this.scale)
+    //前景绘制
+    foregroundPaint () {
 
 
+        this.chartList.forEach((chart) => {
+            chart.foregroundPaint()
+        })
 
-        context.beginPath();
-        context.arc(100,75,50,0,2*Math.PI);
-        context.stroke();
 
-        context.restore();
+        //此处计算 this.interval
 
+
+        //DOMHighResTimeStamp 是一个double类型，用于存储时间值。该值可以是离散的时间点或两个离散时间点之间的时间差，单位为毫秒
+        Render((iDOMHighResTimeStamp) => {
+            //计算每次绘制的时间间隔
+            this.interval = iDOMHighResTimeStamp - lastTimestamp
+            lastTimestamp = iDOMHighResTimeStamp
+            this.foregroundPaint()
+        })
+    }
+
+    //开始绘制
+    startPaint () {
+
+        Render((iDOMHighResTimeStamp) => {
+
+            //计算每次绘制的时间间隔
+            this.interval = iDOMHighResTimeStamp - lastTimestamp
+            lastTimestamp = iDOMHighResTimeStamp
+
+            //背景只绘制一次
+            this.backdropPaint()
+
+            //前景一般需要重复绘制
+            this.foregroundPaint()
+        })
     }
 }

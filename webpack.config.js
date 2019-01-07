@@ -7,7 +7,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 module.exports = {
     entry: {
-        miniChart: './src/minichart.js',
+        miniChart: ['./src/tools/hidpi-canvas.js', './src/minichart.js'],
         bundle: './src/index.js',
     },
     output: {

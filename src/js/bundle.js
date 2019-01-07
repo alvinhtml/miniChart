@@ -1,12 +1,12 @@
 webpackJsonp([0],{
 
-/***/ 9:
+/***/ 11:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _minichart = __webpack_require__(0);
+var _minichart = __webpack_require__(1);
 
 var _minichart2 = _interopRequireDefault(_minichart);
 
@@ -16,14 +16,15 @@ var myChart = document.getElementById('mychart');
 
 console.log(_minichart2.default);
 
-var chart2D = _minichart2.default.init(myChart);
+var chart = _minichart2.default.init(myChart);
 
-chart2D.setOption({
+chart.setOption({
+    scale: true, //是否允许缩放
     type: 'pie',
     name: '访问来源',
-    radius: '55%',
-    center: ['50%', '60%'],
-    data: [{ value: 335, name: '直接访问' }, { value: 310, name: '邮件营销' }, { value: 234, name: '联盟广告' }, { value: 135, name: '视频广告' }, { value: 1548, name: '搜索引擎' }]
+    radius: '80%',
+    center: ['50%', '50%'],
+    data: [{ value: 335, name: '直接访问' }, { value: 810, name: '邮件营销' }, { value: 234, name: '联盟广告' }, { value: 135, name: '视频广告' }, { value: 548, name: '搜索引擎' }, { value: 448, name: '搜索引擎' }, { value: 548, name: '搜索引擎2' }, { value: 348, name: '搜索引擎3' }]
 });
 /*
 
@@ -33,4 +34,4 @@ chart2D.setOption({
 
 /***/ })
 
-},[9]);
+},[11]);

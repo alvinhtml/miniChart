@@ -1,40 +1,27 @@
 //影片剪辑
-export default class MovieClip {
+export default class Movieclip {
     constructor (pattern) {
 
+
         this.id = undefined
 
-        this.name = undefined
+        //动画类名称
+        this.name = ''
 
+        //动画的填充图案
         this.pattern = pattern
 
+        //动画类的X坐标
+		this.x = 0;
 
+		//动画类的Y坐标
+		this.y = 0;
+
+		//动画实际宽度
+		this.width = 0;
+
+		//动画实际高度
+		this.height = 0;
 
     }
 }
-
-//影片剪辑群组
-class MovieClipGroup {
-    constructor () {
-
-        this.id = undefined
-
-        this.name = undefined
-    }
-}
-
-
-
-// /**
-//  * 响应事件的元素
-//  */
-// export class AbioticElement extends Element {
-//
-// }
-//
-// /**
-//  * 不响应事件的元素
-//  */
-// export class AbioticElement extends Element {
-//
-// }
