@@ -1,11 +1,11 @@
 //引入工具函数
-import {lighten, darken} from '../tools/tool.js'
+import {lighten, darken} from '../tools/tool'
 
-//引入渲染优化方法
-import Render from './render'
+//引入事件对象
+import Event2d from './event'
 
 //引入工具函数
-import {Pie} from './shape.js'
+import {Pie} from './shape'
 
 
 //图表默认配置信息
@@ -24,16 +24,15 @@ const colors = [
 	'#8c50c8',
 ]
 
-
-
-
-
-//
 // NOTE: chart 对象类似导演，通过舞台布置场景
 
-export class ChartPie {
+
+
+class Chart {
+
 	constructor (option) {
 
+		//图表配置数据
 		this.option = option
 
 		this.stage2d = null
@@ -46,7 +45,11 @@ export class ChartPie {
 		//图形列表
 		this.shapeList = []
 
-		this.option = option
+		//事件列表
+		this.eventList = []
+
+		//需要复原的动画
+		this.recoverAnimateList = []
 
     }
 
@@ -63,6 +66,42 @@ export class ChartPie {
 
 		this.setPie()
 	}
+
+	//添加一个等待复原的动画
+	addRecoverAnimate (shape, option) {
+		this.recoverAnimateList.push({
+			shape,
+			option
+		})
+	}
+
+	//复原的动画
+	recoverAnimate (shape, option) {
+		this.recoverAnimateList.forEach((v) => {
+			v.shape.animate(v.option)
+		})
+	}
+
+
+
+
+	//绑定事件
+    addEventListener (event, callback) {
+        this.eventList.push(new Event2d(event, callback))
+    }
+
+}
+
+
+
+
+export class ChartPie extends Chart {
+
+	constructor (option) {
+		super(option)
+    }
+
+
 
 	setPie () {
 
@@ -90,25 +129,27 @@ export class ChartPie {
 			}
 
 
-			let sAngle = 0,
-				eAngle   = 0
+			let sAngle = -Math.PI / 2,
+				eAngle = -Math.PI / 2
 
 			let shapeList = list.map((v, i) => {
 
-
-
+				//创建一个饼形图
 				let shape = new Pie()
 
-				// 饼形图
+				//设置饼形图属性
 				shape.stage2d = this.stage2d
+				shape.chart2d = this
 				shape.x = centerX
 				shape.y = centerY
+				shape.originalX = centerX
+				shape.originalY = centerY
 				shape.pattern = colors[i]
 				shape.mouseOverPattern = lighten(colors[i])
 		        shape.name = v.name
 		        shape.value = v.value
 		        shape.radius = radius
-				shape.precent = v.value / total * 100
+				shape.precent = Math.round(v.value / total * 100)
 
 				eAngle += shape.precent / 50 * Math.PI
 
@@ -117,6 +158,7 @@ export class ChartPie {
 
 				sAngle = eAngle
 
+				//执行一个动画
 				shape.animate({
 					eAngle
 				})
@@ -133,11 +175,22 @@ export class ChartPie {
 	//前景绘制（图表）
 	foregroundPaint (scene) {
 		this.foregroundScene.paint((context) => {
+
+			//设置绘制时 canvas 默认属性
+			context.strokeStyle = "#ffffff"
+	        context.lineJoin = "bevel"
+	        context.miterLimit = 1
+	        context.textAlign = "center"
+	        context.textBaseline = "middle"
+	        context.font = "12px sans-serif"
+			context.fillStyle = "#ffffff"
+
+			//遍历并绘制
 			this.shapeList.forEach((shape) => {
 				shape.paint(context)
 			})
-		})
 
+		})
 	}
 
 	//背景绘制 （坐标轴，图例等）

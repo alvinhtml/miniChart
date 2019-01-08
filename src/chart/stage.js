@@ -7,21 +7,25 @@ import Scene from './scene'
 //引入图表对象
 import Chart from './chart'
 
-//引入事件对象
-import {Event} from './event'
+//队列
+import Queue from './queue'
 
 //引入常量名
 import {
 	EVENT_MOUSE_DOWN
 } from '../constants'
 
-let lastIDOMHighResTimeStamp = 0;
-
 //引入工具函数
 import {offsetTop, offsetLeft} from '../tools/tool.js'
 
-//last iDOMHighResTimeStamp
-let lastTimestamp = 0;
+//iDOMHighResTimeStamp
+let lastIDOMHighResTimeStamp = 0;
+
+//创建坐标点，用于记录一次鼠标指向
+function point (x, y) {
+    return {x, y}
+}
+
 
 //舞台
 export default class Stage {
@@ -32,12 +36,6 @@ export default class Stage {
         this.container = container
 
         this.container.style.position = 'relative'
-
-        //前景容器
-        //this.foregroundList = []
-
-        //背景容器
-        //this.backdropList = []
 
         //图表容器
         this.chartList = []
@@ -63,21 +61,14 @@ export default class Stage {
 		this.translateX = 0
 		this.translateY = 0
 
+        //设备像素比
         this.pixelRatio = pixelRatio
-
-        console.log("windowRatio", this.ratio)
 
         //鼠标X
     	this.mouseX = 0
 
     	//鼠标Y
     	this.mouseY = 0
-
-        //鼠标X
-    	this.mouseClickX = 0
-
-    	//鼠标Y
-    	this.mouseClickY = 0
 
     	//鼠标相对于页面X
     	this.pageX = 0
@@ -88,36 +79,50 @@ export default class Stage {
         //当前帧距离上一帧的时间间隔
         this.interval = 0
 
-        //等待播放动画元素的个数
-        this.animaterNumber = 0
 
+        this.clickEventQueue = new Queue()
+        this.mouseupEventQueue = new Queue()
+        this.mousedownEventQueue = new Queue()
+        this.mousemoveEventQueue = new Queue()
+
+        this.initEventListener()
+
+    }
+
+    //初始化事件监听
+    initEventListener () {
         //添加事件监听
-		document.addEventListener("mouseup", function(e) {
-			//coreStage2d.stageMouseUp(e)
+		document.addEventListener("mouseup", (e) => {
+
 		}, false)
 
-		container.addEventListener("mousedown", function(e) {
+		this.container.addEventListener("mousedown", (e) => {
 			//coreStage2d.stageMouseDown(e)
 		}, false)
 
-		container.addEventListener("mousemove", (e) => {
+        this.container.addEventListener("click", (e) => {
+            this.clickEventQueue.enqueue(point(this.mouseX, this.mouseY))
+		}, false)
+
+		this.container.addEventListener("mousemove", (e) => {
         	this.pageX = e.pageX
         	this.pageY = e.pageY
             this.mouseX = (e.pageX - this.offset.left) * this.pixelRatio
             this.mouseY = (e.pageY - this.offset.top) * this.pixelRatio
+
+            this.mousemoveEventQueue.enqueue(point(this.mouseX, this.mouseY))
 		}, false)
 
         //缩放事件
-        container.addEventListener("DOMMouseScroll", (e) => {
+        this.container.addEventListener("DOMMouseScroll", (e) => {
             //缩放，暂时禁用
             //this.stageScroll(e)
 		}, false)
         //兼容FF
-		container.onmousewheel = (e) => {
+		this.container.onmousewheel = (e) => {
             //缩放，暂时禁用
             //this.stageScroll(e)
 		}
-
     }
 
     //创建一个场景
@@ -145,7 +150,7 @@ export default class Stage {
 
         ) {
             //阻止冒泡
-            e.preventDefault()
+            e.stopPropagation()
 
 			//计算出缩放前的鼠标在场景中的 X、Y
 			var beforeX = ((e.pageX - this.offset.left) - this.translateX) / this.scale,
@@ -187,11 +192,18 @@ export default class Stage {
         //此处计算 this.interval
 
 
+        //释放鼠标点击坐标点
+        if (!this.clickEventQueue.isEmpty()) this.clickEventQueue.dequeue()
+
+        //释放鼠标移动坐标点
+        if (!this.mousemoveEventQueue.isEmpty()) this.mousemoveEventQueue.dequeue()
+
+
         //DOMHighResTimeStamp 是一个double类型，用于存储时间值。该值可以是离散的时间点或两个离散时间点之间的时间差，单位为毫秒
         Render((iDOMHighResTimeStamp) => {
             //计算每次绘制的时间间隔
-            this.interval = iDOMHighResTimeStamp - lastTimestamp
-            lastTimestamp = iDOMHighResTimeStamp
+            this.interval = iDOMHighResTimeStamp - lastIDOMHighResTimeStamp
+            lastIDOMHighResTimeStamp = iDOMHighResTimeStamp
             this.foregroundPaint()
         })
     }
@@ -202,8 +214,8 @@ export default class Stage {
         Render((iDOMHighResTimeStamp) => {
 
             //计算每次绘制的时间间隔
-            this.interval = iDOMHighResTimeStamp - lastTimestamp
-            lastTimestamp = iDOMHighResTimeStamp
+            this.interval = iDOMHighResTimeStamp - lastIDOMHighResTimeStamp
+            lastIDOMHighResTimeStamp = iDOMHighResTimeStamp
 
             //背景只绘制一次
             this.backdropPaint()

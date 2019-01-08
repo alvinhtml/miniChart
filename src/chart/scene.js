@@ -1,6 +1,3 @@
-//引入渲染优化方法
-import Render from './render'
-
 //场景
 export default class Scene {
 

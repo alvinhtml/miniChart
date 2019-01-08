@@ -3,7 +3,6 @@ import miniChart  from './minichart.js'
 
 const myChart = document.getElementById('mychart')
 
-console.log(miniChart);
 
 const chart = miniChart.init(myChart)
 
@@ -11,7 +10,7 @@ chart.setOption({
     scale: true, //是否允许缩放
     type: 'pie',
     name: '访问来源',
-    radius : '80%',
+    radius : '60%',
     center: ['50%', '50%'],
     data:[
         {value:335, name:'直接访问'},
@@ -25,6 +24,6 @@ chart.setOption({
     ],
 })
 
-// chart.addEventListener('click', (e) => {
-//     alert(e.value)
-// })
+chart.addEventListener('click', (e) => {
+    console.log(e.name, e.value)
+})

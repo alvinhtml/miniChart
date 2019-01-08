@@ -63,7 +63,6 @@ export function lighten (hex) {
     let arr = rgb.map((v) => {
         return Math.min(v + 10, 255)
     })
-    console.log(rgbToHex(arr[0], arr[1], arr[2]))
     return rgbToHex(arr[0], arr[1], arr[2])
 }
 

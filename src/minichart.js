@@ -12,6 +12,8 @@ export default class miniChart {
 
         this.container = container
 
+        this.chartList = []
+
     }
 
 
@@ -23,12 +25,21 @@ export default class miniChart {
         //创建一个饼状图图表，传入配置信息
         let chartPie2d = new ChartPie(option)
 
+        this.chartList.push(chartPie2d)
 
         stage2d.addChart(chartPie2d)
 
         stage2d.startPaint()
 
     }
+
+    //绑定事件
+    addEventListener (event, callback) {
+        this.chartList.forEach((chart) => {
+            chart.addEventListener(event, callback)
+        })
+    }
+
 
     /*!
      * [init 初始化图表]

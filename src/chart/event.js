@@ -1,17 +1,12 @@
 //事件对象
-class event2D {
+export default class Event2d {
 
     constructor (event, callback) {
         //事件类型
-		this.event = event
+		this.eventType = event
 
         //事件回调
         this.callback = callback
     }
 
-}
-
-//添加事件
-export function Event (event, callback) {
-    return new event2D(event, callback)
 }
