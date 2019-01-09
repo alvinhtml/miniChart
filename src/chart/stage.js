@@ -129,7 +129,6 @@ export default class Stage {
     createScene (type) {
         //初始化一个场景，并绑定当前舞台
         let scener = Scene.init(this)
-
         return scener
     }
 
@@ -174,8 +173,8 @@ export default class Stage {
 
     //背景绘制
     backdropPaint () {
-        this.chartList.forEach((scener) => {
-
+        this.chartList.forEach((chart) => {
+            chart.backdropPaint()
         })
     }
 

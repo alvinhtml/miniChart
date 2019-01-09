@@ -83,6 +83,13 @@ class Shape {
     }
 }
 
+/*
+    Math.sin(x)    x 的正玄值。返回值在 -1.0 到 1.0 之间；
+    Math.cos(x)    x 的余弦值。返回的是 -1.0 到 1.0 之间的数；
+    这两个函数中的X 都是指的“弧度”而非“角度” 　　
+    弧度的计算公式为： 角度*（PI/180）；　　（角度转弧度可参考：角度与弧度互转）
+    30° 角度 的弧度 = 30 * （PI/180）
+ */
 
 //饼状图
 export class Pie extends Shape {
@@ -128,6 +135,11 @@ export class Pie extends Shape {
 
         //结束角，以弧度计
         this.eAngle = 0
+
+        //图例宽度
+        this.legendWidth
+
+        this.visible = 1
 
 
 
@@ -249,14 +261,16 @@ export class Pie extends Shape {
     }
 
 
-    //绘制名称
-    paintName (context, stage2d) {
-
-    }
-
-    //绘制数据值
-    paintValue (context) {
-
+    //绘制图例
+    paintLegend (context, x, y) {
+        context.save()
+        context.fillStyle = this.pattern
+        context.beginPath()
+        context.arc(x, y, 6, 0, Math.PI * 2)
+        context.fill()
+        context.stroke()
+        context.restore()
+        context.fillText(this.name, x + 10, y)
     }
 
     paint (context) {
@@ -296,7 +310,6 @@ export class Pie extends Shape {
         } else {
             context.textAlign = "right"
         }
-        context.fillStyle = "#222222"
         context.fillStyle = this.pattern
         context.fillText(this.name + '：' + this.precent + '%', ex, ey)
         context.restore()
