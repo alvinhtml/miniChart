@@ -54,8 +54,14 @@ class Chart {
 		//默认样式配置信息
 		this.style = {
 	        colors: ['#f2711c', '#fbbd08', '#b5cc18', '#21ba45', '#00b5ad', '#2185d0', '#6435c9', '#a333c8', '#e03997', '#a5673f'],
-	        font: '12px sans-serif'
+	        font: '12px sans-serif',
+			legend: null,
+			nameStyle: null,
+	        valueStyle: '{c}%'
 	    }
+
+		//图例Y轴偏移
+		this.legendOffsetTop = 20
 
     }
 
@@ -69,7 +75,17 @@ class Chart {
 		//创建一个前景场景对象，用于绘制饼图
 		this.foregroundScene = stage2d.createScene()
 
+		//配置信息
+		if (typeof this.option.style !== 'undefined') {
+			Object.assign(this.style, this.option.style)
+		}
 
+		//图例位置
+		if (this.style.legend === 'top') {
+			this.legendOffsetTop = 20
+		} else if (this.style.legend === 'bottom') {
+			this.legendOffsetTop = stage2d.height - 20
+		}
 
 		this.initOptions()
 	}
@@ -94,19 +110,28 @@ class Chart {
 
 	//初始化图例信息
 	initLegend () {
+
+		if (!this.style.legend) return false
+
+		//图例分段， 用于实现图例换行
 		let legendSection = []
 		let offsetLeft = 0
 		this.option.legend.forEach((v, i) => {
 
+			//图例名称的绘制宽度
 			let width = parseInt(this.foregroundScene.context.measureText(v).width) + 26
+
+			//当图例超出总宽度时，将先前的图例段作为一个分组布存到 legendList 里，legendList 的每一项都是一个数组，这个数组即是一个图例分组
 			if (offsetLeft + width > this.stage2d.width) {
 				this.legendList.push(Array.from(legendSection))
 				legendSection = []
 				offsetLeft = 0
 			}
 
+			//将图例的绘制所需信息存放到一个对象，然后将对象存到图例分组
 			legendSection.push({
 				name: v,
+				shape: this.shapeList[i],
 				width: width,
 				height: 24,
 				disable: 0,
@@ -117,12 +142,17 @@ class Chart {
 			offsetLeft += width
 		})
 
+		//将最后一段图例分组存到 legendList
 		if (legendSection.length > 0) this.legendList.push(Array.from(legendSection))
 
 	}
 
 	//图例
 	paintLegend (context) {
+
+		if (!this.style.legend) return false
+
+		//遍历图例分组，this.legendList 实际上是一个二维数组，每一项都是一个分组，每个分组绘制时单独一行
 		this.legendList.forEach((legendScetion, j) => {
 			let lastLegend = legendScetion[legendScetion.length-1]
 			let totalWidth = lastLegend.width + lastLegend.offsetLeft
@@ -132,8 +162,12 @@ class Chart {
 			context.lineWidth = 2
 			context.fillStyle = "#000000"
 
-
-			context.translate(Math.floor((this.stage2d.width - totalWidth + 16) / 2), 20 + 20*j )
+			//(20 + 20 * j) 代表图例在 Y 轴上的偏移, j 每增加 1，图例就会另起一行绘制
+			if (this.style.legend === 'bottom') {
+				context.translate(Math.floor((this.stage2d.width - totalWidth + 16) / 2), this.legendOffsetTop - 20 * j )
+			} else {
+				context.translate(Math.floor((this.stage2d.width - totalWidth + 16) / 2), this.legendOffsetTop + 20 * j )
+			}
 
 			legendScetion.forEach((legend, i) => {
 				context.save()
@@ -143,12 +177,19 @@ class Chart {
 
 				if (context.isPointInPath(this.stage2d.mouseX, this.stage2d.mouseY)) {
 					context.arc(legend.offsetLeft, 0, 6, 0, Math.PI * 2)
+					this.legendClick(legend)
 		        }
 
 				context.closePath()
 
-		        context.stroke()
+				if (legend.disable) {
+					context.fillStyle = "#c9c9c9"
+					context.strokeStyle = "#c9c9c9"
+				}
+
 				context.fillText(legend.name, legend.offsetLeft + 10, 0)
+
+				context.stroke()
 		        context.restore()
 			})
 
@@ -156,6 +197,20 @@ class Chart {
 
 		})
 	}
+
+	//点击禁用图例
+    legendClick (legend) {
+		//检测点击事件
+		let clickEventQueue = this.stage2d.clickEventQueue
+
+		//如果点击事件队列不为空，执行回调，并消耗一次点击坐标
+		if (!clickEventQueue.isEmpty()) {
+			clickEventQueue.dequeue()
+			legend.disable = !legend.disable
+			legend.shape.disable = legend.disable
+			this.setPie()
+		}
+    }
 
 
 
@@ -216,9 +271,6 @@ export class ChartPie extends Chart {
 			}
 		}
 
-
-
-
 		//初始化前景画布配置
 		let context = this.foregroundScene.context
 		context.strokeStyle = "#ffffff"
@@ -230,20 +282,10 @@ export class ChartPie extends Chart {
 		context.fillStyle = "#ffffff"
 
 
-
-
-
-		//图例宽和高，横排时计算宽，竖排时计算高
-		this.legendWidth = 0
-		this.legendHeight = 0
-
 		//如果没有图例，将值做为图例
 		if (typeof option.legend === 'undefined') {
 			option.legend = option.data
 		}
-
-		//图例绘制所需数据
-		this.initLegend()
 
 
 		//创建饼图
@@ -266,20 +308,26 @@ export class ChartPie extends Chart {
 			shape.name = option.legend[i]
 			shape.value = option.data[i]
 			shape.radius = option.radius
+			shape.sAngle = -Math.PI / 2
+			shape.eAngle = -Math.PI / 2
+
 			this.shapeList.push(shape)
 		}
+
+		//图例绘制所需数据
+		this.initLegend()
 
 		this.setPie()
 	}
 
 	//计算饼形状绘制信息
-	setPie () {
+	setPie (repeat) {
 
 		//总计
 		let total = 0
 
 		this.shapeList.forEach((shape) => {
-			if (shape.visible) {
+			if (!shape.disable) {
 				total += shape.value
 			}
 		})
@@ -291,21 +339,42 @@ export class ChartPie extends Chart {
 		//计算起始和结束弧度
 		this.shapeList.forEach((shape) => {
 			//算出百分比
-			shape.precent = Math.round(shape.value / total * 100)
+			if (shape.disable) {
+				shape.precent = 0
+			} else {
+				shape.precent = shape.value / total * 100
+			}
 
 			eAngle += shape.precent / 50 * Math.PI
 
-			//先将结束弧度设为起始弧度，然后通过执行动画过度到结束弧度
-			shape.sAngle = sAngle
-			shape.eAngle = sAngle
+			shape.animate({
+				eAngle,
+				sAngle
+			})
+
+
+
 
 			sAngle = eAngle
 
-			//执行一个动画
-			shape.animate({
-				eAngle
-			})
+
+			//饼上的名称和值显示格式
+			if (typeof this.style.nameStyle === 'function') {
+				shape.nameText = this.style.nameStyle(shape.name, shape.value, shape.precent)
+			}
+			if (typeof this.style.nameStyle === 'string') {
+				shape.nameText = this.style.nameStyle.replace('{a}', shape.name).replace('{b}', shape.value).replace('{c}', Math.round(shape.precent))
+			}
+			if (typeof this.style.valueStyle === 'function') {
+				shape.valueText = this.style.valueStyle(shape.name, shape.value, shape.precent)
+			}
+			if (typeof this.style.valueStyle === 'string') {
+				shape.valueText = this.style.valueStyle.replace('{a}', shape.name).replace('{b}', shape.value).replace('{c}', Math.round(shape.precent))
+			}
+
 		})
+
+		console.log(this.shapeList);
 	}
 
 	//前景绘制（图表）
@@ -317,6 +386,7 @@ export class ChartPie extends Chart {
 				shape.paint(context)
 			})
 
+			//绘制图例
 			this.paintLegend(context)
 
 		})

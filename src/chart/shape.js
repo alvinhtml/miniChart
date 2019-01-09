@@ -136,18 +136,17 @@ export class Pie extends Shape {
         //结束角，以弧度计
         this.eAngle = 0
 
-        //图例宽度
-        this.legendWidth
+        //名称信息, 决定是否在饼外显示名称
+        this.nameText = null
 
-        this.visible = 1
+        //值信息, 决定是否在饼上显示值或百分比
+        this.valueText = null
 
 
 
-        //动画变化量
-        //changeValue = {}
+        //临时禁用
+        this.disable = 0
 
-        //动画时间轴
-        //this.time = 0
 
     }
 
@@ -173,22 +172,8 @@ export class Pie extends Shape {
             context.fillStyle = this.pattern
         }
 
-        // let radian = (this.eAngle - this.sAngle) / 2 + this.sAngle  - (1.5 * Math.PI)
-        // let x = this.x + Math.sin(radian) * (this.radius + 10)
-        // let y = this.y - Math.cos(radian) * (this.radius + 10)
-
         context.stroke()
         context.fill()
-
-        // context.beginPath()
-        // context.arc(x, y, 5, 0, 2*Math.PI)
-        // context.closePath()
-        //
-        // context.stroke()
-        // context.fill()
-
-
-
     }
 
     //鼠标事件检测
@@ -261,18 +246,6 @@ export class Pie extends Shape {
     }
 
 
-    //绘制图例
-    paintLegend (context, x, y) {
-        context.save()
-        context.fillStyle = this.pattern
-        context.beginPath()
-        context.arc(x, y, 6, 0, Math.PI * 2)
-        context.fill()
-        context.stroke()
-        context.restore()
-        context.fillText(this.name, x + 10, y)
-    }
-
     paint (context) {
 
         //保存画布句柄，开始绘制饼形
@@ -283,36 +256,41 @@ export class Pie extends Shape {
         //计算饼形中线弧度
         let radian = (this.eAngle - this.sAngle) / 2 + this.sAngle  + (0.5 * Math.PI)
 
-        //绘制数据值
-        let x = this.x + Math.sin(radian) * (this.radius * .7)
-        let y = this.y - Math.cos(radian) * (this.radius * .7)
-        context.fillText(this.precent + '%', x, y)
-
-        //开始绘制名称，计算名称指引线开始坐标(sx, xy)和结束(ex, ey)坐标
-        let sx = this.originalX + Math.sin(radian) * (this.radius + 4)
-        let sy = this.originalY - Math.cos(radian) * (this.radius + 4)
-        let ex = this.originalX + Math.sin(radian) * (this.radius + 20)
-        let ey = this.originalY - Math.cos(radian) * (this.radius + 20)
-
-        //保存画布句柄，开始画线
-        context.save()
-
-        context.strokeStyle = this.pattern
-        context.beginPath()
-        context.moveTo(sx, sy)
-        context.lineTo(ex, ey)
-        context.stroke()
-
-        //绘制名称
-
-        if (radian < Math.PI) {
-            context.textAlign = "left"
-        } else {
-            context.textAlign = "right"
+        if (this.chart2d.style.valueStyle && !this.disable) {
+            //绘制数据值
+            let x = this.x + Math.sin(radian) * (this.radius * .7)
+            let y = this.y - Math.cos(radian) * (this.radius * .7)
+            context.fillText(this.valueText, x, y)
         }
-        context.fillStyle = this.pattern
-        context.fillText(this.name + '：' + this.precent + '%', ex, ey)
-        context.restore()
+
+
+        if (this.chart2d.style.nameStyle && !this.disable) {
+            //开始绘制名称，计算名称指引线开始坐标(sx, xy)和结束(ex, ey)坐标
+            let sx = this.originalX + Math.sin(radian) * (this.radius + 4)
+            let sy = this.originalY - Math.cos(radian) * (this.radius + 4)
+            let ex = this.originalX + Math.sin(radian) * (this.radius + 20)
+            let ey = this.originalY - Math.cos(radian) * (this.radius + 20)
+
+            //保存画布句柄，开始画线
+            context.save()
+
+            context.strokeStyle = this.pattern
+            context.beginPath()
+            context.moveTo(sx, sy)
+            context.lineTo(ex, ey)
+            context.stroke()
+
+            //绘制名称
+            context.fillStyle = this.pattern
+            if (radian < Math.PI) {
+                context.textAlign = "left"
+                context.fillText(this.nameText, ex + 3, ey)
+            } else {
+                context.textAlign = "right"
+                context.fillText(this.nameText, ex - 3, ey)
+            }
+            context.restore()
+        }
 
     }
 }

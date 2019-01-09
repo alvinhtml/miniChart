@@ -15,7 +15,7 @@ let pieOption = {
     //样式
     style: {
         //颜色
-        colors: [],
+        colors: ['#f2711c', '#fbbd08', '#b5cc18', '#21ba45', '#00b5ad', '#2185d0', '#6435c9', '#a333c8', '#e03997', '#a5673f'],
 
         //字体
         font: '12px sans-serif',
@@ -28,15 +28,15 @@ let pieOption = {
          *   c: 百分比
          * 3 - (a, b, c) = { return a + ':' + b +'(' + c + '%)' }
         */
-        name: () => {
-            return a + ':' + b
+        nameStyle: (a, b, c) => {
+            return a + '(' + b + ')'
         },
 
         //值, 配置方法同上
-        value: '{c}%',
+        valueStyle: '{c}%',
 
         //图例,
-        legend: 'bottom' // 'top', 'left', 'right'
+        legend: 'top' // 'top'
 
     },
 
