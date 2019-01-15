@@ -202,6 +202,17 @@ export class Pie extends Shape {
                         }
 
                         break;
+
+                    case 'mousemove':
+                        //检测点击事件
+                        let mousemoveEventQueue = this.stage2d.mousemoveEventQueue
+
+                        //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
+                        if (!mousemoveEventQueue.isEmpty()) {
+                            eventList[i].callback(this.getEventData(mousemoveEventQueue.dequeue()))
+                        }
+
+                        break;
                     default:
 
                 }
@@ -211,8 +222,11 @@ export class Pie extends Shape {
 
     getEventData (point) {
         return {
-            mouseX: this.stage2d.mouseX,
-            mouseY: this.stage2d.mouseY,
+            mouseX: parseInt(this.stage2d.mouseX / this.stage2d.pixelRatio),
+            mouseY: parseInt(this.stage2d.mouseY / this.stage2d.pixelRatio),
+            pageX: this.stage2d.pageX,
+            pageY: this.stage2d.pageY,
+            color: this.pattern,
             name: this.name,
             value: this.value,
             precent: this.precent

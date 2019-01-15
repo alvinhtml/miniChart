@@ -20,10 +20,34 @@
     <title>miniChart</title>
 
     <style>
-        #mychart {
+        .chart {
             width: 420px;
             height: 380px;
-            margin: 0 auto;
+            margin: 20px auto;
+        }
+
+        .minichart-tip {
+            position: fixed;
+            left: -1200px;
+            top: -1200px;
+            min-width: 60px;
+            min-height: 36px;
+            padding: 6px;
+            background-color: #fff;
+            box-shadow: 0 0 6px rgba(0,0,0,.1);
+        }
+        .minichart-tip span {
+            display: inline-block;
+            line-height: 24px;
+            vertical-align: middle;
+        }
+        .minichart-tip i {
+            display: inline-block;
+            vertical-align: middle;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #ccc;
         }
     </style>
 </head>
@@ -36,7 +60,9 @@
         <p>使用简单，速度快。</p>
     </header>
 
-    <div id="mychart"></div>
+    <!-- <div id="mychart2" class="chart"></div> -->
+
+    <div id="mychart" class="chart"></div>
 
     <!-- JavaScript -->
     <script type="text/javascript" src="src/js/miniChart.min.js"></script>

@@ -74,6 +74,38 @@ let pieOption = {
 
 chart.setOption(pieOption)
 
+chart.tip((a, b, c) => {
+    return a + ':' + b
+})
+
 chart.addEventListener('click', (e) => {
     console.log(e.name, e.value)
 })
+
+
+//
+// const lineChart = miniChart.init(document.getElementById('mychart'))
+//
+// lineChart.setOption({
+//     type: 'pie',   // 'line', 'bar', 'radar', 'gauge'
+//
+//     //样式
+//     style: {
+//
+//         //图例,
+//         legend: 'top' // 'top'
+//
+//     },
+//
+//     //半径
+//     radius : '60%', // 60% , 150
+//
+//     //圆心位置
+//     center: ['50%', '50%'],  // ['50%', '50%'], [200, 200]
+//
+//     //图例
+//     legend: ['台式电脑', '笔记本', '平板电脑', '手机', '交换机', '路由器', '服务器'],
+//
+//     //图例对应的数据集
+//     data: [334, 211, 186, 412, 218, 162, 128]
+// })

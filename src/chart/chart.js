@@ -4,6 +4,9 @@ import {lighten, darken} from '../tools/tool'
 //引入事件对象
 import Event2d from './event'
 
+//引入事件对象
+import Tip from './tip'
+
 //引入工具函数
 import {Pie} from './shape'
 
@@ -62,6 +65,8 @@ class Chart {
 
 		//图例Y轴偏移
 		this.legendOffsetTop = 20
+
+		this.tip = null
 
     }
 
@@ -211,6 +216,20 @@ class Chart {
 			this.setPie()
 		}
     }
+
+
+	//添加 tips
+	addTip (format) {
+		Tip.createStyle()
+		this.tip = Tip.init(this.stage2d.container)
+		this.addEventListener ('mousemove', (e) => {
+			this.tipMove(e, format)
+		})
+	}
+
+	clearTip () {
+		this.tip.hide()
+	}
 
 
 
@@ -398,5 +417,13 @@ export class ChartPie extends Chart {
 
 		})
     }
+
+	//当鼠标 mouseover 时，更新 tip
+	tipMove (e, format) {
+
+		let tipInnerHtml = '<span><i style="background:' + e.color + '"></i>' + format(e.name, e.value, e.precent) + '<span>'
+		this.tip.show();
+		this.tip.move(e.mouseX, e.mouseY, tipInnerHtml)
+	}
 
 }

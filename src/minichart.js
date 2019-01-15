@@ -40,6 +40,13 @@ export default class miniChart {
         })
     }
 
+    //开启 tips
+    tip (format) {
+        this.chartList.forEach((chart) => {
+            chart.addTip(format)
+        })
+    }
+
 
     /*!
      * [init 初始化图表]

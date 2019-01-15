@@ -195,7 +195,13 @@ export default class Stage {
         if (!this.clickEventQueue.isEmpty()) this.clickEventQueue.dequeue()
 
         //释放鼠标移动坐标点
-        if (!this.mousemoveEventQueue.isEmpty()) this.mousemoveEventQueue.dequeue()
+        if (!this.mousemoveEventQueue.isEmpty()) {
+			this.mousemoveEventQueue.dequeue()
+			this.chartList.forEach((chart) => {
+				//鼠标移到 chart 图外，清除 tip
+				chart.clearTip()
+	        })
+		}
 
 
         //DOMHighResTimeStamp 是一个double类型，用于存储时间值。该值可以是离散的时间点或两个离散时间点之间的时间差，单位为毫秒
