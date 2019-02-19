@@ -1,47 +1,56 @@
-
-const webpack = require("webpack")
+const webpack = require('webpack')
 const path = require('path')
-
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
+    mode: 'development',
     entry: {
-        miniChart: ['./src/tools/hidpi-canvas.js', './src/minichart.js'],
-        bundle: './src/index.js',
+        minichart: ['./src/tools/hidpi-canvas.js', './src/minichart.js'],
+        bundle: './src/index.js'
     },
     output: {
-        path: path.resolve(__dirname, './src/js'),
-        filename: '[name].js'
+        filename: '[name].js',
+        path: path.resolve(__dirname, 'build')
     },
     module: {
-        loaders: [{
-            test: /\.css$/,
-            use: ExtractTextPlugin.extract({
-                fallback: "style-loader",
-                use: [{
-                    loader: "css-loader"
-                }]
-            })
-        },{
-            test: /\.js$/,
-            exclude: /node_modules/,
-            loader: 'babel-loader'
-        },{
-            test: /\.(png|jpg|gif|eot|woff|svg|ttf|woff2)$/,
-			loader: 'url-loader?limit=30000'
-        }]
-    },
-    resolve: {
-        extensions: ['.js', '.jsx'],
+        rules: [
+            {
+                test: /\.js$/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [
+                            '@babel/preset-env'
+                        ],
+                        plugins: [
+                            '@babel/plugin-proposal-class-properties'
+                        ]
+                    }
+                }
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            }
+        ]
     },
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'miniChart',
-            filename: 'miniChart.min.js',
-        }),
-        new ExtractTextPlugin({
-            filename: '../css/style.min.css'
+        new HtmlWebpackPlugin({
+            template: './src/index.html',
+            filename: 'index.html'
         })
-    ]
+    ],
+    devServer: {
+        port: 8080,
+        progress: true,
+        contentBase: './build',
+        open: true,
+        //hot: true,
+        proxy: {
+            '/mui/src/css': {
+                target: 'http://project.xuehtml.com',
+                changeOrigin: true
+            }
+        },
+    }
 }

@@ -427,3 +427,61 @@ export class ChartPie extends Chart {
 	}
 
 }
+
+
+export class ChartLine extends Chart {
+
+	constructor (option) {
+		super(option)
+    }
+
+	initOptions () {
+
+		const option = this.option
+
+		const stage2d = this.stage2d
+
+
+
+		//图例绘制所需数据
+		this.initLegend()
+
+		this.setPie()
+	}
+
+	//计算饼形状绘制信息
+	setLine (repeat) {
+
+	}
+
+	//前景绘制（图表）
+	foregroundPaint (scene) {
+		this.foregroundScene.paint((context) => {
+
+			//遍历并绘制
+			this.shapeList.forEach((shape) => {
+				shape.paint(context)
+			})
+
+			//绘制图例
+			this.paintLegend(context)
+
+		})
+	}
+
+	//背景绘制 （坐标轴，图例等）
+    backdropPaint (scene) {
+		this.backdropScene.paint((context) => {
+
+		})
+    }
+
+	//当鼠标 mouseover 时，更新 tip
+	tipMove (e, format) {
+
+		let tipInnerHtml = '<span><i style="background:' + e.color + '"></i>' + format(e.name, e.value, e.precent) + '<span>'
+		this.tip.show();
+		this.tip.move(e.mouseX, e.mouseY, tipInnerHtml)
+	}
+
+}

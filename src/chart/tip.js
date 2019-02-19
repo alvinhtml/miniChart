@@ -25,6 +25,7 @@ export default class Tip {
 
         //创建 Canvas，并添加到场景
         const box = document.createElement('div')
+        box.style.display = 'none'
         box.classList.add('minichart-tip')
         container.appendChild(box)
 
@@ -38,7 +39,6 @@ export default class Tip {
         style.innerHTML = `
             .minichart-tip {
                 position: absolute;
-                display: 'none';
                 min-width: 60px;
                 min-height: 24px;
                 padding: 6px 10px;

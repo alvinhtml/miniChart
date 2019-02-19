@@ -308,3 +308,204 @@ export class Pie extends Shape {
 
     }
 }
+
+//点
+export class Dot extends Shape {
+    constructor () {
+
+        super()
+
+        //类型
+        this.type = 'dot'
+
+        // //形状的初始X坐标
+        // this.originalX = 0
+        //
+        // //形状的初始Y坐标
+        // this.originalY = 0
+
+        //形状的X坐标
+        this.x = 0
+
+        //形状的Y坐标
+        this.y = 0
+
+        //填充颜色或图案
+        this.pattern = '#ffffff'
+
+        //填充颜色或图案 mouseover
+        this.mouseOverPattern = '#ffffff'
+
+        //名称
+        this.name = ''
+
+        //值
+        this.value = 0
+
+        //值信息, 决定是否在饼上显示值或百分比
+        this.valueText = null
+
+        //临时禁用
+        this.disable = 0
+
+
+    }
+
+
+
+    //绘制饼形
+    paintDot (context) {
+
+        context.beginPath()
+
+        //对于饼状图，xy是圆的中心
+        context.moveTo(this.x, this.y)
+
+        context.arc(this.x, this.y, this.radius, this.sAngle,  this.eAngle)
+
+
+        context.closePath()
+
+        if (context.isPointInPath(this.stage2d.mouseX, this.stage2d.mouseY)) {
+            context.fillStyle = this.mouseOverPattern;
+            this.eventDetection()
+        } else {
+            context.fillStyle = this.pattern
+        }
+
+        context.stroke()
+        context.fill()
+    }
+
+    //鼠标事件检测
+    eventDetection () {
+
+        let eventList = this.chart2d.eventList
+
+        if (eventList.length > 0) {
+            //遍历事件列表，以响应多个事件
+            for (let i in eventList) {
+                switch (eventList[i].eventType) {
+                    case 'click':
+                        //检测点击事件
+                        let clickEventQueue = this.stage2d.clickEventQueue
+
+                        //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
+                        if (!clickEventQueue.isEmpty()) {
+                            eventList[i].callback(this.getEventData(clickEventQueue.dequeue()))
+                            //先复原，然后播放点击动画,
+                            this.chart2d.recoverAnimate()
+                            if (this.recoverAnimateIng) {
+                                this.recoverAnimateIng = false
+                            } else {
+                                this.clickAnimate()
+                            }
+                        }
+
+                        break;
+
+                    case 'mousemove':
+                        //检测点击事件
+                        let mousemoveEventQueue = this.stage2d.mousemoveEventQueue
+
+                        //如果点击事件队列不为空，执行回调，并消耗一次点击坐标
+                        if (!mousemoveEventQueue.isEmpty()) {
+                            eventList[i].callback(this.getEventData(mousemoveEventQueue.dequeue()))
+                        }
+
+                        break;
+                    default:
+
+                }
+            }
+        }
+    }
+
+    getEventData (point) {
+        return {
+            mouseX: parseInt(this.stage2d.mouseX / this.stage2d.pixelRatio),
+            mouseY: parseInt(this.stage2d.mouseY / this.stage2d.pixelRatio),
+            pageX: this.stage2d.pageX,
+            pageY: this.stage2d.pageY,
+            color: this.pattern,
+            name: this.name,
+            value: this.value,
+            precent: this.precent
+        }
+    }
+
+    //点击动画
+    clickAnimate () {
+
+        //计算饼形中线弧度
+        let radian = (this.eAngle - this.sAngle) / 2 + this.sAngle  + (0.5 * Math.PI)
+
+        //计算移动后的圆心坐标
+        let x = this.x + Math.sin(radian) * 10
+        let y = this.y - Math.cos(radian) * 10
+
+        //先记录当前 shape 和圆心坐标，复原时用
+        this.chart2d.addRecoverAnimate(this, {
+            x: this.x,
+            y: this.y
+        })
+
+        //开始播放移动动画
+        this.animate({
+            x,
+            y
+        })
+
+        this.recoverAnimateIng = true
+
+    }
+
+
+    paint (context) {
+
+        //保存画布句柄，开始绘制饼形
+        context.save()
+        this.paintPie(context)
+        context.restore()
+
+        //计算饼形中线弧度
+        let radian = (this.eAngle - this.sAngle) / 2 + this.sAngle  + (0.5 * Math.PI)
+
+        if (this.chart2d.style.valueStyle && !this.disable) {
+            //绘制数据值
+            let x = this.x + Math.sin(radian) * (this.radius * .7)
+            let y = this.y - Math.cos(radian) * (this.radius * .7)
+            context.fillText(this.valueText, x, y)
+        }
+
+
+        if (this.chart2d.style.nameStyle && !this.disable) {
+            //开始绘制名称，计算名称指引线开始坐标(sx, xy)和结束(ex, ey)坐标
+            let sx = this.originalX + Math.sin(radian) * (this.radius + 4)
+            let sy = this.originalY - Math.cos(radian) * (this.radius + 4)
+            let ex = this.originalX + Math.sin(radian) * (this.radius + 20)
+            let ey = this.originalY - Math.cos(radian) * (this.radius + 20)
+
+            //保存画布句柄，开始画线
+            context.save()
+
+            context.strokeStyle = this.pattern
+            context.beginPath()
+            context.moveTo(sx, sy)
+            context.lineTo(ex, ey)
+            context.stroke()
+
+            //绘制名称
+            context.fillStyle = this.pattern
+            if (radian < Math.PI) {
+                context.textAlign = "left"
+                context.fillText(this.nameText, ex + 3, ey)
+            } else {
+                context.textAlign = "right"
+                context.fillText(this.nameText, ex - 3, ey)
+            }
+            context.restore()
+        }
+
+    }
+}

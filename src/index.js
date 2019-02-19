@@ -1,7 +1,10 @@
 import miniChart  from './minichart.js'
 
+import './css/style.css'
 
-const myChart = document.getElementById('mychart')
+let myChart = document.createElement('div')
+myChart.className = 'chart'
+document.body.appendChild(myChart)
 
 
 const chart = miniChart.init(myChart)
@@ -83,29 +86,42 @@ chart.addEventListener('click', (e) => {
 })
 
 
-//
-// const lineChart = miniChart.init(document.getElementById('mychart'))
-//
-// lineChart.setOption({
-//     type: 'pie',   // 'line', 'bar', 'radar', 'gauge'
-//
-//     //样式
-//     style: {
-//
-//         //图例,
-//         legend: 'top' // 'top'
-//
-//     },
-//
-//     //半径
-//     radius : '60%', // 60% , 150
-//
-//     //圆心位置
-//     center: ['50%', '50%'],  // ['50%', '50%'], [200, 200]
-//
-//     //图例
-//     legend: ['台式电脑', '笔记本', '平板电脑', '手机', '交换机', '路由器', '服务器'],
-//
-//     //图例对应的数据集
-//     data: [334, 211, 186, 412, 218, 162, 128]
-// })
+let myChartLine = document.createElement('div')
+myChartLine.className = 'chart'
+document.body.appendChild(myChartLine)
+
+
+const lineChart = miniChart.init(document.getElementById('mychart'))
+
+lineChart.setOption({
+    type: 'pie',   // 'line', 'bar', 'radar', 'gauge'
+
+    //样式
+    style: {
+
+        //图例,
+        legend: 'top' // 'top'
+
+    },
+
+    //半径
+    radius : '60%', // 60% , 150
+
+    //圆心位置
+    center: ['50%', '50%'],  // ['50%', '50%'], [200, 200]
+
+    //x轴
+    xAxis: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+
+    //
+    //yAxis: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+
+    //图例对应的数据集
+    data: [{
+        name: '最高温度',
+        data: [2, 11, 16, 20, 27, 33, 37, 34, 25, 17, 7, -2]
+    }, {
+        name: '最低温度',
+        data: [-3, 5, 8, 14, 20, 29, 32, 27, 19, 13, 0, -9]
+    }]
+})

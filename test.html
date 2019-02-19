@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=gbf>
+<title>曲线运动</title>
+
+</head>
+<body onLoad="init()">
+<canvas id="canvas" width="800" height="800"/>
+<script>
+var oQuadraticCurveTo = document.getElementById("canvas");
+var oContext = oQuadraticCurveTo.getContext("2d");
+var x=2;
+drawLine();
+    function drawLine(){
+        oContext.beginPath();
+        oContext.moveTo(0,0);                       //起始点（x,y）
+        oContext.quadraticCurveTo(100, 0, 200, 200);    //创建二次贝塞尔曲线
+        oContext.lineWidth = 2;
+        oContext.strokeStyle = "tomato";
+        oContext.stroke();
+        oContext.closePath();
+    }
+    function drawPoint(x,y){
+        oContext.beginPath();
+        oContext.arc(x, y, 3, 0, 2 * Math.PI, false);
+        oContext.fillStyle="red";
+        oContext.fill();
+
+        oContext.stroke();
+        oContext.closePath();
+    }
+
+    //画移动的线
+    function drawMivie(){
+
+        y=Math.pow(x,2)*0.005
+        console.log(y);
+        oContext.beginPath();
+        oContext.moveTo(x,y);
+        x=x+0.1;
+
+        if(x > 198){
+            x=0;
+        }else{
+        //防止首位相连
+        y=Math.pow(x,2) * 0.005
+        oContext.lineTo(x,y);
+        oContext.strokeStyle = "white";
+        oContext.lineWidth = 1;
+        oContext.stroke();
+        oContext.closePath();
+        }
+
+
+    }
+
+    drawPoint(0,0);
+    drawPoint(200,200);
+    //定位到起点
+
+    setInterval(function(){
+            drawMivie();
+        },1);
+</script>
+</body>
+</html>
